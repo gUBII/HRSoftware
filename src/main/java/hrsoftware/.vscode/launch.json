@@ -1,0 +1,13 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "java",
+        "name": "HRSoftwareApp",
+        "request": "launch",
+        "mainClass": "hrsoftware.HRSoftwareApp",
+        "projectName": "HRSoftware_62c77904"
+      }
+    ]
+  }
+  
