@@ -11,32 +11,65 @@ import javafx.stage.Stage;
 
 public class HRSoftwareApp extends Application {
 
+    private EmployeeManager employeeManager = new EmployeeManager();
+
     @Override
-public void start(Stage primaryStage) throws Exception {
-    primaryStage.setTitle("HR Software");
+    public void start(Stage primaryStage) {
+        primaryStage.setTitle("HR Software");
 
-    // Create layout
-    VBox layout = new VBox(10);
-    layout.setPadding(new Insets(20, 20, 20, 20));
+        // Initialize the layout
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(20, 20, 20, 20));
 
-    // Add UI components here
-    Label nameLabel = new Label("Employee Name:");
-    TextField nameInput = new TextField();
-    nameInput.setPromptText("Name");
+        // Existing Name Field (Assuming you already have this)
+        Label nameLabel = new Label("Employee Name:");
+        TextField nameInput = new TextField();
+        nameInput.setPromptText("Name");
 
-    Button addButton = new Button("Add Employee");
-    addButton.setOnAction(e -> {
-        // Here, you will call your backend logic to add the employee
-        System.out.println(nameInput.getText()); // For now, just print the name to the console
-        nameInput.clear(); // Clear the input field after adding
-    });
+        // Additional Fields
+        Label idLabel = new Label("Employee ID:");
+        TextField idInput = new TextField();
+        idInput.setPromptText("ID");
 
-    layout.getChildren().addAll(nameLabel, nameInput, addButton);
+        Label paymentLabel = new Label("Payment per Hour:");
+        TextField paymentInput = new TextField();
+        paymentInput.setPromptText("Payment per Hour");
 
-    Scene scene = new Scene(layout, 400, 400);
-    primaryStage.setScene(scene);
-    primaryStage.show();
-}
+        Label clockInLabel = new Label("Clock-In Time:");
+        TextField clockInInput = new TextField();
+        clockInInput.setPromptText("HH:mm");
+
+        Label clockOutLabel = new Label("Clock-Out Time:");
+        TextField clockOutInput = new TextField();
+        clockOutInput.setPromptText("HH:mm");
+
+        // Submit Button
+        Button submitButton = new Button("Submit");
+
+        // Button Action Handler
+        submitButton.setOnAction(e -> {
+            try {
+                // Validate inputs and create an Employee object...
+                Employee newEmployee = new Employee(/* parameters */);
+                employeeManager.addEmployee(newEmployee);
+
+                // Clear fields, update UI as needed
+            } catch (NumberFormatException ex) {
+                // Handle input format errors
+            } catch (IllegalArgumentException ex) {
+                // Handle other input errors
+            }
+        });
+
+        // Add all components to the layout
+        layout.getChildren().addAll(nameLabel, nameInput, idLabel, idInput, paymentLabel, paymentInput, clockInLabel,
+                clockInInput, clockOutLabel, clockOutInput, submitButton);
+
+        // Finalize and show the stage
+        Scene scene = new Scene(layout, 400, 600); // Adjust size as needed
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
 
     public static void main(String[] args) {
         launch(args);
