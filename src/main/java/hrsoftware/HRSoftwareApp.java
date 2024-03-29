@@ -5,124 +5,144 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class HRSoftwareApp extends Application {
+    private final TableView<Employee> employeeTable = new TableView<>();
+    private final EmployeeManager employeeManager = new EmployeeManager();
 
-    private TableView<Employee> employeeTable = new TableView<>();
-    private EmployeeManager employeeManager = new EmployeeManager();
-
-    // Declare form inputs at the class level
-    private TextField idInput = new TextField();
-    private TextField nameInput = new TextField();
-    private TextField paymentInput = new TextField();
-    private TextField clockInInput = new TextField();
-    private TextField clockOutInput = new TextField();
+    private final TextField idInput = new TextField();
+    private final TextField nameInput = new TextField();
+    private final TextField paymentInput = new TextField();
+    private final TextField clockInInput = new TextField();
+    private final TextField clockOutInput = new TextField();
 
     @Override
     public void start(Stage primaryStage) {
         primaryStage.setTitle("HR Software");
 
-        // Initialize the layout
-        VBox layout = new VBox(10);
-        layout.setPadding(new Insets(20, 20, 20, 20));
+        VBox layout = setupLayout();
+        setupTableView();
+        setupActionsColumn();
 
-        // Define columns for the TableView
+        Scene scene = new Scene(layout, 800, 600);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
+    private VBox setupLayout() {
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(20));
+
+        setupFormFields();
+        Button submitButton = setupSubmitButton();
+
+        layout.getChildren().addAll(new Label("Employee ID:"), idInput,
+                new Label("Employee Name:"), nameInput,
+                new Label("Payment per Hour:"), paymentInput,
+                new Label("Clock-In Time:"), clockInInput,
+                new Label("Clock-Out Time:"), clockOutInput,
+                submitButton, employeeTable);
+        return layout;
+    }
+
+    private void setupFormFields() {
+        idInput.setPromptText("ID");
+        nameInput.setPromptText("Name");
+        paymentInput.setPromptText("Payment per Hour");
+        clockInInput.setPromptText("HH:mm");
+        clockOutInput.setPromptText("HH:mm");
+    }
+
+    private Button setupSubmitButton() {
+        Button submitButton = new Button("Submit");
+        submitButton.setOnAction(e -> handleSubmit());
+        return submitButton;
+    }
+
+    private void handleSubmit() {
+        String errorMessage = "";
+
+        try {
+            int id = Integer.parseInt(idInput.getText().trim());
+            String name = nameInput.getText().trim();
+            double paymentPerHour = Double.parseDouble(paymentInput.getText().trim());
+            // Validate inputs
+            if (name.isEmpty() || id <= 0 || paymentPerHour <= 0) {
+                errorMessage = "Please ensure all fields are correctly filled.";
+            }
+
+            if (!errorMessage.isEmpty()) {
+                showAlert("Validation Error", errorMessage);
+                return;
+            }
+
+            Employee newEmployee = new Employee(id, name, paymentPerHour);
+            // Set additional details if present
+            employeeManager.addEmployee(newEmployee);
+            refreshTable();
+            clearFormFields();
+
+        } catch (NumberFormatException e) {
+            showAlert("Input Error", "Please enter valid numbers for ID and payment per hour.");
+        }
+    }
+
+    private void setupTableView() {
         TableColumn<Employee, Integer> idColumn = new TableColumn<>("ID");
         idColumn.setCellValueFactory(new PropertyValueFactory<>("id"));
-
         TableColumn<Employee, String> nameColumn = new TableColumn<>("Name");
         nameColumn.setCellValueFactory(new PropertyValueFactory<>("name"));
-
         TableColumn<Employee, Double> paymentColumn = new TableColumn<>("Payment Per Hour");
         paymentColumn.setCellValueFactory(new PropertyValueFactory<>("paymentPerHour"));
 
-        // Adding columns to the employeeTable
         employeeTable.getColumns().addAll(idColumn, nameColumn, paymentColumn);
+        refreshTable();
+    }
 
-        // Form Fields
-        Label nameLabel = new Label("Employee Name:");
-        TextField nameInput = new TextField();
-        nameInput.setPromptText("Name");
+    private void setupActionsColumn() {
+        TableColumn<Employee, Void> actionCol = new TableColumn<>("Actions");
 
-        Label idLabel = new Label("Employee ID:");
-        TextField idInput = new TextField();
-        idInput.setPromptText("ID");
+        actionCol.setCellFactory(col -> new TableCell<>() {
+            private final Button editBtn = new Button("Edit");
+            private final Button deleteBtn = new Button("Delete");
+            private final HBox pane = new HBox(5, editBtn, deleteBtn);
 
-        Label paymentLabel = new Label("Payment per Hour:");
-        TextField paymentInput = new TextField();
-        paymentInput.setPromptText("Payment per Hour");
+            {
+                editBtn.setOnAction(event -> editEmployee(getTableView().getItems().get(getIndex())));
+                deleteBtn.setOnAction(event -> deleteEmployee(getTableView().getItems().get(getIndex())));
+            }
 
-        Label clockInLabel = new Label("Clock-In Time:");
-        TextField clockInInput = new TextField();
-        clockInInput.setPromptText("HH:mm");
-
-        Label clockOutLabel = new Label("Clock-Out Time:");
-        TextField clockOutInput = new TextField();
-        clockOutInput.setPromptText("HH:mm");
-
-        Button submitButton = new Button("Submit");
-
-        // Populate the TableView
-        ObservableList<Employee> employeeObservableList = FXCollections
-                .observableArrayList(employeeManager.getAllEmployees());
-        employeeTable.setItems(employeeObservableList);
-
-        // Submit Button Action
-        submitButton.setOnAction(e -> {
-            String errorMessage = "";
-
-            try {
-                int id = Integer.parseInt(idInput.getText().trim());
-                String name = nameInput.getText().trim();
-                double paymentPerHour = Double.parseDouble(paymentInput.getText().trim());
-                String clockIn = clockInInput.getText().trim();
-                String clockOut = clockOutInput.getText().trim();
-
-                if (name.isEmpty() || clockIn.isEmpty() || clockOut.isEmpty()) {
-                    errorMessage += "All fields must be filled.\n";
-                }
-
-                // Further validation logic here
-
-                if (!errorMessage.isEmpty()) {
-                    showAlert(Alert.AlertType.ERROR, "Validation Error", errorMessage);
-                    return;
-                }
-
-                Employee newEmployee = new Employee(id, name, paymentPerHour);
-                // Assuming setters for clockIn and clockOut times
-                employeeManager.addEmployee(newEmployee);
-
-                // Update TableView
-                ObservableList<Employee> updatedList = FXCollections
-                        .observableArrayList(employeeManager.getAllEmployees());
-                employeeTable.setItems(updatedList);
-
-                // Clear form fields
-                clearFormFields();
-
-            } catch (NumberFormatException ex) {
-                showAlert(Alert.AlertType.ERROR, "Input Error", "ID and Payment per Hour must be numeric.");
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : pane);
             }
         });
 
-        // Layout setup
-        layout.getChildren().addAll(nameLabel, nameInput, idLabel, idInput, paymentLabel, paymentInput, clockInLabel,
-                clockInInput, clockOutLabel, clockOutInput, submitButton, employeeTable);
+        employeeTable.getColumns().add(actionCol);
+    }
 
-        // Scene and Stage setup
-        Scene scene = new Scene(layout, 600, 600); // Adjust size as needed
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    private void editEmployee(Employee employee) {
+        // Placeholder - Here you'd open a dialog to edit details
+        // For demonstration, let's simply log the action
+        System.out.println("Edit Employee: " + employee.getName());
+        // Refresh to show any potential changes
+        refreshTable();
+    }
+
+    private void deleteEmployee(Employee employee) {
+        employeeManager.removeEmployee(employee.getId());
+        refreshTable();
+    }
+
+    private void refreshTable() {
+        ObservableList<Employee> employees = FXCollections.observableArrayList(employeeManager.getAllEmployees());
+        employeeTable.setItems(employees);
     }
 
     private void clearFormFields() {
@@ -133,8 +153,8 @@ public class HRSoftwareApp extends Application {
         clockOutInput.clear();
     }
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
+    private void showAlert(String title, String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
         alert.setHeaderText(null);
         alert.setContentText(message);
