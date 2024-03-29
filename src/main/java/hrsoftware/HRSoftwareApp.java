@@ -1,27 +1,42 @@
 package hrsoftware;
 
 import javafx.application.Application;
+import javafx.geometry.Insets;
 import javafx.scene.Scene;
-import javafx.scene.control.TabPane;
-import javafx.scene.layout.BorderPane;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 public class HRSoftwareApp extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        primaryStage.setTitle("HR Software");
+public void start(Stage primaryStage) throws Exception {
+    primaryStage.setTitle("HR Software");
 
-        TabPane tabPane = new TabPane();
-        BorderPane root = new BorderPane();
-        root.setCenter(tabPane);
-        
-        // Set up scenes, tabs, and other UI components here
-        
-        Scene scene = new Scene(root, 800, 600);
-        primaryStage.setScene(scene);
-        primaryStage.show();
-    }
+    // Create layout
+    VBox layout = new VBox(10);
+    layout.setPadding(new Insets(20, 20, 20, 20));
+
+    // Add UI components here
+    Label nameLabel = new Label("Employee Name:");
+    TextField nameInput = new TextField();
+    nameInput.setPromptText("Name");
+
+    Button addButton = new Button("Add Employee");
+    addButton.setOnAction(e -> {
+        // Here, you will call your backend logic to add the employee
+        System.out.println(nameInput.getText()); // For now, just print the name to the console
+        nameInput.clear(); // Clear the input field after adding
+    });
+
+    layout.getChildren().addAll(nameLabel, nameInput, addButton);
+
+    Scene scene = new Scene(layout, 400, 400);
+    primaryStage.setScene(scene);
+    primaryStage.show();
+}
 
     public static void main(String[] args) {
         launch(args);

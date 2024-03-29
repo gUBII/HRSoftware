@@ -1,5 +1,5 @@
 {
     "java.project.referencedLibraries": [
-        "D:\Github\HRSoftware\lib\javafx-sdk-22\lib\*.jar"
+        "D:\Github\HRSoftware\lib\javafx-sdk-22\lib\.*jar"
     ]
 }
