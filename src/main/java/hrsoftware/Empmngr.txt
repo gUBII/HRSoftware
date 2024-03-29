@@ -1,0 +1,33 @@
+Explanation:
+Adding an Employee: addEmployee method adds a new employee to the list.
+Removing an Employee: removeEmployee method removes an employee by their ID.
+Updating an Employee: updateEmployee method updates the details of an existing employee. This method uses a helper method findEmployeeIndexById to find the index of the employee in the list based on the ID.
+Finding an Employee: findEmployeeById searches for and returns an employee by their ID.
+Listing All Employees: getAllEmployees returns a list of all employees.
+
+File Directory Structure
+Here's a simple directory structure for the project:
+
+HRSoftware/
+|-- src/
+    |-- main/
+        |-- java/
+            |-- hrsoftware/
+                |-- Main.java
+                |-- Employee.java
+                |-- EmployeeManager.java
+                |-- ShiftManager.java
+                |-- PaymentManager.java
+                |-- GUI.java
+        |-- resources/
+            |-- css/
+            |-- images/
+    |-- test/
+        |-- java/
+|-- lib/
+|-- out/
+
+
+
+
+
